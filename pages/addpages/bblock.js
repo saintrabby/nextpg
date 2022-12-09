@@ -6,10 +6,13 @@ const Bblock = () => {
   return (
     <Wrap>
       <Centerdiv>
-        <div style={{ width: '60px', height: '60px', border: '1px solid pink' }} onClick={(e) => {
-          console.dir(e.target.offsetParent.style)
-          e.target.offsetParent.style.offset = '100px'
-        }} />
+        <div style={{ display: 'flex', flexWrap: 'wrap', width: '600px' }}>
+          <div style={{ width: '60px', height: '60px', border: '1px solid pink' }} onClick={(e) => {
+            console.dir(e.target.offsetParent.style)
+            e.target.offsetParent.style.offset = '100px'
+          }} />
+          <div style={{ width: '60px', height: '60px', border: '1px solid pink' }} />
+        </div>
       </Centerdiv>
     </Wrap>
   )
@@ -28,6 +31,7 @@ const Wrap = styled.div`
 `
 
 const Centerdiv = styled.div`
+  position: absolute;
   width: 600px;
   height: 420px;
   margin: 20px auto;
