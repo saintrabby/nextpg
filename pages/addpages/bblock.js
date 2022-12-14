@@ -12,6 +12,9 @@ const Bblock = () => {
   const [bdirX, setBdirX] = useState(-1)
   const [bdirY, setBdirY] = useState(-1)
 
+  const [BSpeedX, setBspeedX] = useState(16)
+  const [BSpeedY, setBspeedY] = useState(16)
+
   const [blocks, setBlocks] = useState([
     {
       crash: false,
@@ -35,8 +38,6 @@ const Bblock = () => {
 
   const BgColor = '#282c34'
   const BSize = 20
-  const BSpeedX = 80
-  const BSpeedY = 120
 
   //Init
   useEffect(() => {
@@ -180,6 +181,26 @@ const Bblock = () => {
     }
   }, [pauseState])
 
+  useEffect(() => {
+    onkeydown = (e) => {
+      if (e.key === 'ArrowRight' && BSpeedX < 100) {
+        setBspeedX(BSpeedX + 8);
+        // console.log(BSpeedX + 8, BSpeedY)
+      }
+      if (e.key === 'ArrowLeft' && BSpeedX > 8) {
+        setBspeedX(BSpeedX - 8);
+        // console.log(BSpeedX - 8, BSpeedY)
+      }
+      if (e.key === 'ArrowUp' && BSpeedY < 100) {
+        setBspeedY(BSpeedY + 8);
+        // console.log(BSpeedX, BSpeedY + 8)
+      }
+      if (e.key === 'ArrowDown' && BSpeedY > 8) {
+        setBspeedY(BSpeedY - 8);
+        // console.log(BSpeedX, BSpeedY - 8)
+      }
+    }
+  }, [BSpeedX, BSpeedY])
 
 
   const CanvasClear = () => {

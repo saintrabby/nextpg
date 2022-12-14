@@ -37,8 +37,8 @@ export default function Home() {
         https://innate-cosmonaut-e53.notion.site/Seeso-8998da48c8234410a37192de0d948f26
       </a>
       <div style={{ marginTop: '60px' }}>🔅개인 스터디 중🔅</div>
-      <a href='https://fbch-c69b8.web.app'>
-        https://fbch-c69b8.web.app/
+      <a href='https://fbch-c69b8.firebaseapp.com/'>
+        https://fbch-c69b8.firebaseapp.com/
       </a>
     </div>
   }

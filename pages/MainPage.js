@@ -274,7 +274,7 @@ const MainPage = () => {
       <CenterWrap className='shadow-drop-2-center' chat={chatOn}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <CenterBtn onClick={() => router.push('/')}>여기</CenterBtn>
-          <CenterBtn onClick={() => router.push('/addpages/testing')}>공사중</CenterBtn>
+          <CenterBtn onClick={() => router.push('/addpages/bblock')}>공사중</CenterBtn>
         </div>
 
         <CenterContent>
