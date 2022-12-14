@@ -415,6 +415,10 @@ const CenterContent = styled.div`
   margin: 20px auto;
   height: 66.6%;
   width: 90%;
+
+  @media screen and (width < 501px) {
+    flex-direction: column;
+  }
 `
 
 const ChatDiv = styled.div`
