@@ -37,7 +37,7 @@ const Write = (props) => {
     }
 
     set(ref(realDB, 'fbch/story/first'), thistory)
-    router.push('/')
+    router.push('/MainPage')
   }
 
   const TitleX = (e) => {
@@ -77,7 +77,7 @@ const Write = (props) => {
   return (
     <WriteWrap>
       <WriteFrame>
-        <BackBtn onClick={() => router.push('/')}>◀</BackBtn>
+        <BackBtn onClick={() => router.push('/MainPage')}>◀</BackBtn>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <WriteArea className='shadow-drop-2-center'>
@@ -101,7 +101,7 @@ const Write = (props) => {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '20px' }}>
-          <WriteBtn onClick={() => router.push('/')}>취소</WriteBtn>
+          <WriteBtn onClick={() => router.push('/MainPage')}>취소</WriteBtn>
           <WriteBtn onClick={() => okBtn()}>올리기</WriteBtn>
         </div>
       </WriteFrame>

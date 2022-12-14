@@ -1,319 +1,95 @@
-import axios from 'axios'
-// import Head from 'next/head'
-// import Image from 'next/image'
-// import Link from 'next/link'
-import { useRouter } from 'next/router'
-import { useEffect, useRef, useState } from 'react'
-import { realDB } from '../public/fbconfig';
-import { child, get, getDatabase, onValue, ref, remove, set } from 'firebase/database';
-import styled from 'styled-components'
-import Fbstorage from '../public/components/fbstorage';
-// import styles from '../styles/Home.module.css'
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import styled from 'styled-components';
+
+import MainPage from './MainPage';
 
 export default function Home() {
 
-  const [nick, setNick] = useState('')
-  const [mynick, setMynick] = useState(false)
-  const [mono, setMono] = useState(false)
-  // const [cont, setCont] = useState('')
-  // const [getfbd, setGetfbd] = useState(null)
-  const [clist, setClist] = useState([])
-  const [cnum, setCnum] = useState(0)
-  const [story, setStory] = useState(null)
-  const [chatOn, setChatOn] = useState(false)
-
-  let nicks = ''
-  let chats = ''
-  const chatref = useRef()
-  const scrollref = useRef(null)
-
-  const stopdbload = false
   const router = useRouter()
 
-  const ver = 'v0.1'
+  const [btn1, setBtn1] = useState(false)
+  const [btn2, setBtn2] = useState(false)
+  const [btn3, setBtn3] = useState(false)
 
-  const listup = (data) => {
+  // console.log(('td'.match(/[td]/g)))
 
-    if (stopdbload)
-      return
-
-    if (data === 1) {
-      // let dbref = ref(realDB)
-      // get(child(dbref, `fbch/chat`))
-      //   .then((r) => {
-      //     if (r.val() === null)
-      //       return console.log('no data')
-
-      //     setClist(r.val())
-      //   })
-      chatConnect()
-      loadStory()
-      return console.log('start')
-    }
-
-    let chatlist = [...clist]
-    chatlist.push(data)
-
-    // data.docs.map((v, i) => {
-    //   chatlist.push(v.data())
-    // })
-    // setCnum(cnum + 1)
-    setClist(chatlist)
+  const Btn1Click = () => {
+    return <div>
+      <Xbtn onClick={() => setBtn1(false)}>❌</Xbtn>
+      <div>안녕하세요</div>
+      <div style={{ marginTop: '60px' }}>신입 프론트엔드 개발자 지망생입니다</div>
+      <div style={{ marginTop: '60px' }}>React로 만든 페이지 입니다</div>
+      <div style={{ marginTop: '60px' }}>UX에 신경을 쓰는 편이고, 항상 최선을 다합니다</div>
+      <div style={{ marginTop: '60px' }}>이쁘게 봐주세요...^^</div>
+    </div>
   }
 
-  const chatIn = (e) => {
-    chats = e
-  }
-
-  const onEnter = (e) => {
-    if (chats === '')
-      return
-
-    if (stopdbload)
-      return
-
-    if (e.key === 'Enter') {
-      let upchat = {}
-      upchat.username = nick
-      upchat.message = chats
-      upchat.msgnum = cnum + 1
-
-      let dbref = ref(realDB)
-
-      // if (nick === '모노쿠마') {
-      //   get(child(dbref, `mono`))
-      //     .then((r) => {
-      //       let loNcheck = (parseInt(localStorage.getItem('lognum')) === r.val().lognum)
-
-      //       if (loNcheck && r.val().adcheck) {
-      //         get(child(dbref, `fbch/chat`))
-      //           .then((r) => {
-      //             let dbnum = r.size
-
-      //             set(ref(realDB, 'fbch/chat/' + dbnum), upchat)
-      //             chatref.current.value = ''
-
-      //             listup(upchat)
-
-      //             return
-      //           })
-      //       }
-      //       else {
-      //         let checking = (chats << 2) === r.val().cuma
-
-      //         if (checking) {
-      //           let lognum = parseInt((Math.floor(Math.random() * 9 + 1) + Math.random()) * 100000)
-      //           localStorage.setItem('lognum', lognum)
-
-      //           set(ref(realDB, 'mono/waiting'), true)
-      //           set(ref(realDB, 'mono/lognum'), lognum)
-      //           chatref.current.value = ''
-
-      //           return console.log('관리자 허가 대기중')
-      //         }
-      //         else {
-      //           console.log('해당 닉네임은 관리자만 사용가능')
-      //           chatref.current.value = '해당 닉네임은 관리자용입니다'
-      //           return router.reload()
-      //         }
-      //       }
-      //     })
-      // }
-
-      // else
-      get(child(dbref, `fbch/chat`))
-        .then((r) => {
-          let dbnum = r.size
-          // let tmsg = { username: 'direct', message: cont, msgnum: dbnum }
-          set(ref(realDB, 'fbch/chat/' + dbnum), upchat)
-          chatref.current.value = ''
-
-          listup(upchat)
-        })
-    }
-  }
-
-  const chatConnect = () => {
-
-    let dbref = ref(realDB)
-    // const dref = get(child(dbref, `fbch/chat`))
-    // const q = query(dbref)
-
-    // console.log('connect')
-    // remove(dbref)
-
-    console.log(ver)
-
-    scrolldown(1000)
-
-    onValue(dbref,
-      (s) => {
-        // console.log(s.val().fbch.chat)
-        get(child(dbref, `fbch/chat`))
-          .then((r) => {
-            if (r.val() === null)
-              return console.log('no data')
-
-            let slist = listsort(r.val())
-
-            const listSize = 20
-            const maxSize = listSize * 2
-
-            if (r.size > maxSize) {
-
-              let upList = slist.slice(listSize)
-
-              setClist(slist.slice(-listSize))
-
-              set(ref(realDB, 'fbch/chat/'), upList)
-            }
-            else {
-              setClist(slist.slice(-listSize))
-            }
-          })
-      })
-
-    // get(child(dbref, `fbch/chat`))
-    //   .then((r) => {
-    //     if (r.val() === null)
-    //       return console.log('no data')
-
-    //     setClist(r.val())
-    //   })
-  }
-
-  const listsort = (list) => {
-    list.sort((a, b) => a.msgnum - b.msgnum)
-    setCnum(list[list.length - 1].msgnum)
-    return list
-  }
-
-  const loadStory = () => {
-    let dbref = ref(realDB)
-
-    get(child(dbref, `fbch/story`))
-      .then((res) => setStory(res.val().first))
-  }
-
-  const NickIn = (e) => {
-    nicks = e
-  }
-
-  const NickOk = (e) => {
-    if (e.key === 'Enter') {
-      if (nicks === '모노쿠마') {
-        setNick('')
-        setMono(true)
-        console.log('모노쿠마는 관리자용 닉네임입니다')
-      }
-      else {
-        setNick(nicks)
-        setMynick(true)
-        setMono(false)
-      }
-
-      // setNick(nicks)
-      // setMynick(true)
-    }
-  }
-
-  const ChatChange = () => {
-    setChatOn(!chatOn)
-  }
-
-  const scrolldown = (t = 100) => {
-    setTimeout(() => scrollref.current?.scrollIntoView({ block: 'center' }), t)
-  }
-
-  const pageover = () => {
-    localStorage.removeItem('lognum')
-    // set(ref(realDB, 'mono/adcheck'), false)
-    // set(ref(realDB, 'mono/lognum'), null)
-    set(ref(realDB, 'mono/waiting'), null)
+  const Btn2Click = () => {
+    return <div>
+      <Xbtn onClick={() => setBtn2(false)}>❌</Xbtn>
+      <div>💮마지막 프로젝트 깃허브💮</div>
+      <a href='https://github.com/Final-A68-Seesaw/FE_SEESO'>
+        https://github.com/Final-A68-Seesaw/FE_SEESO
+      </a>
+      <div style={{ marginTop: '60px' }}>💭마지막 프로젝트 기능 - 노션정리💭</div>
+      <a href='https://innate-cosmonaut-e53.notion.site/Seeso-8998da48c8234410a37192de0d948f26'>
+        https://innate-cosmonaut-e53.notion.site/Seeso-8998da48c8234410a37192de0d948f26
+      </a>
+      <div style={{ marginTop: '60px' }}>🔅개인 스터디 중🔅</div>
+      <a href='https://fbch-c69b8.web.app'>
+        https://fbch-c69b8.web.app/
+      </a>
+    </div>
   }
 
   useEffect(() => {
-    listup(1)
+    console.log('effect')
 
-    scrolldown()
+    onkeydown = (e) => {
+      if (e.key === 'Escape') {
+        setBtn1(false)
+        setBtn2(false)
+      }
+    }
   }, [])
 
-  // useEffect(() => {
-  //   document.onkeydown = (e) => {
-  //     //키 차단
-  //     if (e.key === 'F12') {
-  //       e.preventDefault()
-  //       // e.returnValue = false;
-  //     }
-
-  //     setInkey(e.key)
-  //   }
-  // }, [inkey])
-
-  // console.log(scrollref.current.scrollIntoView(alignToBottom))
-
-  // useEffect(() => {
-  //   axios({ method: 'get', url: 'http://localhost:3000/api/hello' })
-  //     .then((res) => console.log(res))
-  // }, [])
+  useEffect(() => {
+    if (btn3) {
+      setTimeout(() => {
+        setBtn3(false)
+      }, 2000);
+    }
+  }, [btn3])
 
   return (
     <MainWrap>
-      <div style={{ height: '60px', padding: '20px', margin: 'auto' }}>닉네임 :
-        {mynick ? <ShowNick>{nick}</ShowNick>
-          : <Nickinput
-            placeholder='nickname'
-            maxLength={10}
-            onChange={(e) => NickIn(e.target.value)}
-            onKeyDown={(e) => NickOk(e)} />}
-      </div>
-      {mono ? <div style={{ lineHeight: '20px' }}>사용할 수 없는 닉네임입니다</div> : <div style={{ lineHeight: '20px' }}></div>}
+      {/* <MainPage /> */}
+      <Center>
+        {/* <button onClick={() => router.push('/MainPage')}>H</button> */}
+        <CircleDiv>
+          <CenterCircle1 onClick={() => setBtn1(!btn1)} btnstate={btn1}>🙋‍♂️</CenterCircle1>
+          <CenterCircle2 onClick={() => setBtn2(!btn2)} btnstate={btn2}>💬</CenterCircle2>
+          <CenterCircle3 onClick={() => setBtn3(!btn3)}>🚫</CenterCircle3>
+          <CenterCircle4 onClick={() => router.push('/MainPage')}>🆓</CenterCircle4>
+        </CircleDiv>
 
-      <ChangeIcon onClick={() => ChatChange()}>↪</ChangeIcon>
+        {btn1 ?
+          <DescModal>
+            {(Btn1Click())}
+          </DescModal>
+          : ''}
 
-      <CenterWrap className='shadow-drop-2-center' chat={chatOn}>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <CenterBtn onClick={() => router.push('/')}>여기</CenterBtn>
-          <CenterBtn onClick={() => router.push('/addpages/testing')}>공사중</CenterBtn>
-        </div>
+        {btn2 ?
+          <DescModal>
+            {(Btn2Click())}
+          </DescModal>
+          : ''}
 
-        <CenterContent>
-          <div style={{ width: '50%' }}>
-            <Fbstorage />
-          </div>
-
-          <div style={{ flex: 1, margin: '20px auto' }}>
-            {story ? <div style={{ margin: '10px' }}>{story.title}</div> :
-              <div style={{ margin: '10px' }}>Loading...</div>}
-            {story ? <div style={{ margin: '10px' }}>{story.story}</div> :
-              <div style={{ margin: '10px' }}>Loading...</div>}
-          </div>
-        </CenterContent>
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <CenterBtn onClick={() => router.push({ pathname: '/write', query: { title: story.title, story: story.story } })}>메인 글 써보기</CenterBtn>
-        </div>
-      </CenterWrap>
-
-      <div style={{ maxHeight: '75vh' }}>
-        <ChatDiv chat={chatOn}>
-          {clist.length === 0 ? console.log('loading') : clist.map((v, i) => {
-            return <Chats key={i} ref={scrollref}>
-              <div style={{ wordBreak: 'break-all' }}>{v.msgnum} - {v.username} : {v.message}</div>
-            </Chats>
-          })}
-        </ChatDiv>
-
-        {mynick ?
-          <ChatStart
-            ref={chatref}
-            onKeyDown={(e) => onEnter(e)}
-            onChange={e => chatIn(e.target.value)}
-            placeholder='bla~ bla~'
-            chat={chatOn}
-          ></ChatStart>
-          : <ChatBla chat={chatOn}>닉네임 입력 후 엔터</ChatBla>}
-      </div>
+        <DescDiv>
+          <Desc btnstate={btn3}>기능이 없습니다^^</Desc>
+        </DescDiv>
+      </Center>
     </MainWrap>
   )
 }
@@ -328,162 +104,195 @@ const MainWrap = styled.div`
   overflow-y: hidden;
 `
 
-const ShowNick = styled.div`
-  border: 1px solid wheat;
-  min-width: 200px;
-  height: 25px;
-  display: inline-block;
-  margin: 8px;
-`
-
-const Nickinput = styled.input`
-  width: 200px;
-  height: 30px;
-  border-radius: 6px;
-  border: 0px;
-  outline: none;
-  text-align: center;
-  margin: 8px;
-`
-
-const ChangeIcon = styled.div`
-  width: 30px;
-  height: 30px;
-  font-size: 50px;
-  position: fixed;
-  left: 20px;
-  top: 60px;
-
-  :hover {
-    cursor: pointer;
-  }
-
-  @media screen and (width > 999px) {
-    display: none;
-  }
-`
-
-const CenterWrap = styled.div`
+const Center = styled.div`
+  position: absolute;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  background-color: grey;
-  /* border: 2px solid white; */
-  border-radius: 20px;
-  position: fixed;
-  /* margin: 0 400px 0 20px; */
-  /* height: 10rem; */
-  /* width: 10rem; */
-  max-height: 75vh;
-  min-height: 480px;
-  /* min-width: 460px; */
-  top: 120px;
-  left: 20px;
-  right: 400px;
-  bottom: 10px;
+  height: 100%;
+  width: 100%;
+  min-height: 100vh;
+  justify-content: center;
+  align-items: center;
 
-  @keyframes shadow-drop-2-center{0%{transform:translateZ(0);box-shadow:0 0 0 0 transparent}100%{transform:translateZ(50px);box-shadow:0 0 20px 0 rgba(0,0,0,.35)}}
-
-  @media screen and (width < 1000px) {
-    display: ${(props) => props.chat ? 'none' : 'flex'};
-    width: 93%;
-  }
+  @keyframes bounce-in-top{0%{transform:translateY(-500px);animation-timing-function:ease-in;opacity:0}38%{transform:translateY(0);animation-timing-function:ease-out;opacity:1}55%{transform:translateY(-65px);animation-timing-function:ease-in}72%{transform:translateY(0);animation-timing-function:ease-out}81%{transform:translateY(-28px);animation-timing-function:ease-in}90%{transform:translateY(0);animation-timing-function:ease-out}95%{transform:translateY(-8px);animation-timing-function:ease-in}100%{transform:translateY(0);animation-timing-function:ease-out}}
 `
 
-const CenterBtn = styled.div`
+const CircleDiv = styled.div`
+  position: absolute;
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
+  width: 220px;
+  height: 220px;
   justify-content: center;
-  width: 45%;
-  height: 60px;
-  border-radius: 20px;
-  border: 0;
-  background-color: #555;
-  color: white;
-  font-size: 20px;
+  align-content: center;
+
+  @keyframes shadow-drop_1{0%{box-shadow:0 0 0 transparent}100%{box-shadow:8px 8px 16px rgba(200,200,200,0.8)}}
+  @keyframes shadow-drop_2{0%{box-shadow:0 0 0 transparent}100%{box-shadow:-8px 8px 16px rgba(200,200,200,0.8)}}
+  @keyframes shadow-drop_3{0%{box-shadow:0 0 0 transparent}100%{box-shadow:8px -8px 16px rgba(200,200,200,0.8)}}
+  @keyframes shadow-drop_4{0%{box-shadow:0 0 0 transparent}100%{box-shadow:-8px -8px 16px rgba(200,200,200,0.8)}}
+`
+
+const CenterCircle1 = styled.div`
+  /* position: absolute; */
+  width: 100px;
+  height: 100px;
+  /* border: 5px solid pink; */
+  background-color: #888;
+  border-top-left-radius: 20%;
+  transition: all ease .3s;
+  font-size: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  ${(props) => props.btnstate ? `
+    margin-top: -10px;
+    margin-left: -10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border-radius: 20%;
+
+    animation:shadow-drop_1 .2s both;
+  ` : ''}
 
   :hover {
     cursor: pointer;
-    animation:shadow-drop-2-center .4s cubic-bezier(.175,.885,.32,1.275) both
+    margin-top: -10px;
+    margin-left: -10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border-radius: 20%;
+
+    animation:shadow-drop_1 .2s both;
   }
 `
 
-const CenterContent = styled.div`
+const CenterCircle2 = styled.div`
+  /* position: absolute; */
+  width: 100px;
+  height: 100px;
+  /* border: 5px solid pink; */
+  background-color: #888;
+  border-top-right-radius: 20%;
+  transition: all ease .3s;
+  font-size: 60px;
   display: flex;
-  flex-direction: row;
+  justify-content: center;
   align-items: center;
-  margin: 20px auto;
-  height: 66.6%;
+
+  ${(props) => props.btnstate ? `
+    margin-top: -10px;
+    margin-left: 10px;
+    margin-right: -10px;
+    margin-bottom: 10px;
+    border-radius: 20%;
+
+    animation:shadow-drop_2 .2s both;
+  ` : ''}
+
+  :hover {
+    cursor: pointer;
+    margin-top: -10px;
+    margin-left: 10px;
+    margin-right: -10px;
+    margin-bottom: 10px;
+    border-radius: 20%;
+
+    animation:shadow-drop_2 .2s both;
+  }
+`
+
+const CenterCircle3 = styled.div`
+  /* position: absolute; */
+  width: 100px;
+  height: 100px;
+  /* border: 5px solid pink; */
+  background-color: #888;
+  border-bottom-left-radius: 20%;
+  transition: all ease .3s;
+  font-size: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  :hover {
+    cursor: pointer;
+    margin-top: 10px;
+    margin-left: -10px;
+    margin-right: 10px;
+    margin-bottom: -10px;
+    border-radius: 20%;
+
+    animation:shadow-drop_3 .2s both
+  }
+`
+
+const CenterCircle4 = styled.div`
+  /* position: absolute; */
+  width: 100px;
+  height: 100px;
+  /* border: 5px solid pink; */
+  background-color: #888;
+  border-bottom-right-radius: 20%;
+  transition: all ease .3s;
+  font-size: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  :hover {
+    cursor: pointer;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: -10px;
+    margin-bottom: -10px;
+    border-radius: 20%;
+
+    animation:shadow-drop_4 .2s both
+  }
+`
+
+const DescDiv = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 32px auto;
+  width: 100%;
+  height: 100%;
+`
+
+const Desc = styled.div`
+  transition: all ease .3s;
+  font-size: 40px;
+  margin-top: ${(props) => props.btnstate ? `60px` : `-200px`};
+`
+
+const DescModal = styled.div`
+  z-index: 10;
+  position: absolute;
   width: 90%;
-
-  @media screen and (width < 501px) {
-    flex-direction: column;
-  }
-`
-
-const ChatDiv = styled.div`
-  /* display: flex; */
-  /* flex-direction: column; */
-  width: 340px;
-  min-height: 10rem;
-  max-height: 75vh;
-  justify-content: flex-end;
-  /* margin-left: auto; */
-  margin: 0px 16px 0 auto;
-  overflow-y: scroll;
-  position: fixed;
-  right: 16px;
-  top: 120px;
-  bottom: 96px;
-
-  @media screen and (width < 1000px) {
-    width: 340px;
-    margin: 0;
-    visibility: ${(props) => props.chat ? 'block' : 'hidden'};
-  }
-  @media screen and (width < 500px) {
-    width: 310px;
-    margin: 0;
-    visibility: ${(props) => props.chat ? 'block' : 'hidden'};
-  }
-`
-
-const Chats = styled.div`
+  height: 90%;
+  border: 1px solid burlywood;
+  border-radius: 30px;
+  background-color: rgba(20, 20, 20, 0.8);
   text-align: left;
-  margin: 8px;
-`
+  font-size: 40px;
+  padding: 16px;
 
-const ChatBla = styled.div`
-  border: 1px solid white;
-  border-radius: 10px;
-  width: 280px;
-  height: 26px;
-  margin: 8px 64px 16px auto;
-  position: fixed;
-  bottom: 1%;
-  right: 12px;
+  animation:bounce-in-top 0.4s both;
 
   @media screen and (width < 1000px) {
-    visibility: ${(props) => props.chat ? 'block' : 'hidden'};
-    margin: 0px 32px 24px auto;
+    font-size: 30px;
+  }
+  @media screen and (width < 501px) {
+    font-size: 20px;
   }
 `
 
-const ChatStart = styled.input`
-  position: fixed;
-  bottom: 5%;
-  right: 48px;
-  width: 300px;
-  height: 40px;
-  border: 0px;
-  outline: none;
-  border-radius: 12px;
-  font-size: 20px;
-  margin: 0px auto;
-  padding: 12px;
+const Xbtn = styled.div`
+  text-align: right;
 
-  @media screen and (width < 1000px) {
-    visibility: ${(props) => props.chat ? 'block' : 'hidden'};
-    right: 24px;
+  :hover {
+    cursor: pointer;
   }
 `
