@@ -404,8 +404,11 @@ const ChangeIcon = styled.div`
     cursor: pointer;
   }
 
-  @media screen and (width > 999px) {
+  @media screen and (width > 1000px) {
     display: none;
+  }
+  @media screen and (width < 501px) {
+    font-size: 30px;
   }
 `
 
@@ -476,10 +479,6 @@ const PeopleLight = styled.div`
     top: 80px;
     right: 160px;
   }
-  @media screen and (width < 501px) {
-    top: 80px;
-    right: 360px;
-  }
 
   visibility: ${(props) => props.count > 0 ? 'visibility' : 'hidden'};
 `
@@ -493,11 +492,6 @@ const PeopleCount = styled.div`
   @media screen and (width < 1000px) {
     top: 80px;
     right: 60px;
-    visibility: ${(props) => props.chat ? 'block' : 'hidden'};
-  }
-  @media screen and (width < 501px) {
-    top: 80px;
-    right: 260px;
     visibility: ${(props) => props.chat ? 'block' : 'hidden'};
   }
 `
