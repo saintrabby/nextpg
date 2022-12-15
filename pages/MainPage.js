@@ -5,7 +5,7 @@ import axios from 'axios'
 import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
 import { realDB } from '../public/fbconfig';
-import { child, get, getDatabase, onValue, ref, remove, set } from 'firebase/database';
+import { child, get, getDatabase, off, onValue, ref, remove, set } from 'firebase/database';
 import styled from 'styled-components'
 import Fbstorage from '../public/components/fbstorage';
 // import styles from '../styles/Home.module.css'
@@ -21,6 +21,8 @@ const MainPage = () => {
   const [cnum, setCnum] = useState(0)
   const [story, setStory] = useState(null)
   const [chatOn, setChatOn] = useState(false)
+
+  const [people, setPeople] = useState(0)
 
   let nicks = ''
   let chats = ''
@@ -148,11 +150,15 @@ const MainPage = () => {
 
     onValue(dbref,
       (s) => {
-        // console.log(s.val().fbch.chat)
+        // console.log(s.val().fbch)
+        console.log('connect')
         get(child(dbref, `fbch/chat`))
           .then((r) => {
             if (r.val() === null)
               return console.log('no data')
+
+            get(child(dbref, `fbch/who`))
+              .then((r) => setPeople(r.val()))
 
             let slist = listsort(r.val())
 
@@ -210,6 +216,18 @@ const MainPage = () => {
         setNick(nicks)
         setMynick(true)
         setMono(false)
+
+        let dbref = ref(realDB)
+        let ids = []
+
+        get(child(dbref, `fbch/ids`))
+          .then((r) => {
+            ids = r.val() ? r.val() : []
+            ids.push(nicks)
+            router.components['/MainPage'].props.pageProps = { id: nicks, count: people + 1 }
+            set(ref(realDB, 'fbch/ids/'), ids)
+            set(ref(realDB, 'fbch/who/'), people + 1)
+          })
       }
 
       // setNick(nicks)
@@ -226,22 +244,45 @@ const MainPage = () => {
   }
 
   const pageover = () => {
-    localStorage.removeItem('lognum')
+    let dbref = ref(realDB)
+    // localStorage.removeItem('lognum')
     // set(ref(realDB, 'mono/adcheck'), false)
     // set(ref(realDB, 'mono/lognum'), null)
-    set(ref(realDB, 'mono/waiting'), null)
+    // set(ref(realDB, 'mono/waiting'), null)
+
+    let myid = (router.components['/MainPage'].props.pageProps.id)
+    let idcount = router.components['/MainPage'].props.pageProps.count
+
+    if (myid) {
+      get(child(dbref, `fbch/ids`))
+        .then((r) => {
+          let idnumber = (r.val().findIndex((v, i) => v === myid))
+
+          remove(ref(realDB, 'fbch/ids/' + idnumber))
+          set(ref(realDB, 'fbch/who/'), idcount - 1)
+        })
+
+      off(dbref)
+    }
   }
 
   useEffect(() => {
     listup(1)
 
     scrolldown()
+
+    window.addEventListener('beforeunload', (e) => {
+      pageover()
+    })
+
+    return () => pageover()
   }, [])
 
+  // const [inkey, setInkey] = useState(null)
   // useEffect(() => {
   //   document.onkeydown = (e) => {
   //     //키 차단
-  //     if (e.key === 'F12') {
+  //     if (e.key === 'F5') {
   //       e.preventDefault()
   //       // e.returnValue = false;
   //     }
@@ -273,12 +314,12 @@ const MainPage = () => {
 
       <CenterWrap className='shadow-drop-2-center' chat={chatOn}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <CenterBtn onClick={() => router.push('/')}>여기</CenterBtn>
+          <CenterBtn onClick={() => router.push('/')}>처음으로</CenterBtn>
           <CenterBtn onClick={() => router.push('/addpages/bblock')}>공사중</CenterBtn>
         </div>
 
         <CenterContent>
-          <div style={{ width: '50%' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', width: '50%' }}>
             <Fbstorage />
           </div>
 
@@ -296,6 +337,9 @@ const MainPage = () => {
       </CenterWrap>
 
       <div style={{ maxHeight: '75vh' }}>
+        <PeopleLight count={people}>🟢</PeopleLight>
+        <PeopleCount chat={chatOn}>{`접속자 수 : ` + people}</PeopleCount>
+
         <ChatDiv chat={chatOn}>
           {clist.length === 0 ? console.log('loading') : clist.map((v, i) => {
             return <Chats key={i} ref={scrollref}>
@@ -423,6 +467,41 @@ const CenterContent = styled.div`
   }
 `
 
+const PeopleLight = styled.div`
+  position: absolute;
+  top: 40px;
+  right: 340px;
+
+  @media screen and (width < 1000px) {
+    top: 80px;
+    right: 160px;
+  }
+  @media screen and (width < 501px) {
+    top: 80px;
+    right: 360px;
+  }
+
+  visibility: ${(props) => props.count > 0 ? 'visibility' : 'hidden'};
+`
+
+const PeopleCount = styled.div`
+  position: absolute;
+  top: 40px;
+  right: 240px;
+  font-style: italic;
+
+  @media screen and (width < 1000px) {
+    top: 80px;
+    right: 60px;
+    visibility: ${(props) => props.chat ? 'block' : 'hidden'};
+  }
+  @media screen and (width < 501px) {
+    top: 80px;
+    right: 260px;
+    visibility: ${(props) => props.chat ? 'block' : 'hidden'};
+  }
+`
+
 const ChatDiv = styled.div`
   /* display: flex; */
   /* flex-direction: column; */
@@ -443,7 +522,7 @@ const ChatDiv = styled.div`
     margin: 0;
     visibility: ${(props) => props.chat ? 'block' : 'hidden'};
   }
-  @media screen and (width < 500px) {
+  @media screen and (width < 501px) {
     width: 310px;
     margin: 0;
     visibility: ${(props) => props.chat ? 'block' : 'hidden'};

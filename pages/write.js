@@ -93,10 +93,10 @@ const Write = (props) => {
 
         <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
           {preimg ? <ImgPrev src={preimg} onDragStart={() => setDragimg(true)} /> :
-            <div style={{ marginRight: '180px' }}>
+            <FileSelDiv>
               <FileSel type='file' title='이미지 업로드' onChange={(e) => fileuploading(e)} />
               <ImgUpdiv><Filelabel>이미지 업로드</Filelabel></ImgUpdiv>
-            </div>}
+            </FileSelDiv>}
           <Trash onDragLeave={() => dragimg ? dragTrash() : ''} onClick={() => setPreimg(null)}>🗑</Trash>
         </div>
 
@@ -197,6 +197,14 @@ const WriteContent = styled.textarea`
   }
 `
 
+const FileSelDiv = styled.div`
+  margin-right: 180px;
+
+  @media screen and (width < 501px) {
+    margin-right: 120px;
+  }
+`
+
 const FileSel = styled.input`
   position: absolute;
   width: 200px;
@@ -213,11 +221,16 @@ const FileSel = styled.input`
   :hover {
     animation:shadow-drop-2-center .1s cubic-bezier(.25,.46,.45,.94) both
   }
+
+  @media screen and (width < 501px) {
+    width: 120px;
+    height: 120px;
+    margin-left: -60px;
+  }
 `
 
 const Filelabel = styled.div`
   position: absolute;
-  font-size: 20px;
 
   :hover {
     cursor: default;
@@ -228,6 +241,10 @@ const ImgPrev = styled.img`
   max-width: 200px;
   height: 200px;
   margin-right: 180px;
+
+  @media screen and (width < 501px) {
+    margin-right: 120px;
+  }
 `
 
 const ImgUpdiv = styled.div`
@@ -237,6 +254,13 @@ const ImgUpdiv = styled.div`
   justify-content: center;
   align-items: center;
   border: 1px solid pink;
+  font-size: 20px;
+
+  @media screen and (width < 501px) {
+    width: 120px;
+    height: 120px;
+    font-size: 14px;
+  }
 `
 
 const Trash = styled.div`
@@ -251,6 +275,13 @@ const Trash = styled.div`
   :hover {
     cursor: pointer;
     animation:shadow-drop-2-center .1s cubic-bezier(.25,.46,.45,.94) both
+  }
+
+  @media screen and (width < 501px) {
+    margin-left: 180px;
+    width: 60px;
+    height: 60px;
+    font-size: 40px;
   }
 `
 

@@ -17,11 +17,13 @@ export default function Home() {
   const Btn1Click = () => {
     return <div>
       <Xbtn onClick={() => setBtn1(false)}>❌</Xbtn>
-      <div>안녕하세요</div>
-      <div style={{ marginTop: '60px' }}>신입 프론트엔드 개발자 지망생입니다</div>
-      <div style={{ marginTop: '60px' }}>React로 만든 페이지 입니다</div>
-      <div style={{ marginTop: '60px' }}>UX에 신경을 쓰는 편이고, 항상 최선을 다합니다</div>
-      <div style={{ marginTop: '60px' }}>이쁘게 봐주세요...^^</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '60px' }}>
+        <div>안녕하세요</div>
+        <div>신입 프론트엔드 개발자 지망생입니다</div>
+        <div>React로 만든 페이지 입니다</div>
+        <div>UX에 신경을 쓰는 편이고, 항상 최선을 다합니다</div>
+        <div>이쁘게 봐주세요...^^</div>
+      </div>
     </div>
   }
 
@@ -44,8 +46,6 @@ export default function Home() {
   }
 
   useEffect(() => {
-    console.log('effect')
-
     onkeydown = (e) => {
       if (e.key === 'Escape') {
         setBtn1(false)
@@ -285,7 +285,7 @@ const DescModal = styled.div`
     font-size: 30px;
   }
   @media screen and (width < 501px) {
-    font-size: 20px;
+    font-size: 15px;
   }
 `
 
