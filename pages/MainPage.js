@@ -475,6 +475,10 @@ const PeopleLight = styled.div`
   top: 40px;
   right: 340px;
 
+  :hover {
+    cursor: default;
+  }
+
   @media screen and (width < 1000px) {
     top: 80px;
     right: 160px;
@@ -488,6 +492,10 @@ const PeopleCount = styled.div`
   top: 40px;
   right: 240px;
   font-style: italic;
+
+  :hover {
+    cursor: default;
+  }
 
   @media screen and (width < 1000px) {
     top: 80px;
