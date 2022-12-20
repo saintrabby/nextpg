@@ -369,14 +369,14 @@ const MainPage = () => {
 
   return (
     <MainWrap>
-      <MpthreeWrap onClick={() => audioPlay()}>
+      <MpthreePlay onClick={() => audioPlay()}>
         {bgmpaused ? <div>▶</div> : <div style={{ fontSize: '24px' }}>∥</div>}
         {/* <iframe src={bgm.m} allow='autoplay'></iframe> */}
         {/* <audio src={bgm.m} type='audio/mp3' autoPlay controls loop style={{ width: '200px', height: '60px' }}></audio> */}
-      </MpthreeWrap>
+      </MpthreePlay>
       <MpthreeStop onClick={() => audioStop()}>■</MpthreeStop>
 
-      <div style={{ height: '60px', padding: '20px', margin: 'auto' }}>닉네임 :
+      <div style={{ height: '60px', margin: 'auto' }}>닉네임 :
         {mynick ? <ShowNick>{nick}</ShowNick>
           : <Nickinput
             placeholder='nickname'
@@ -450,7 +450,7 @@ const MainWrap = styled.div`
   overflow-y: hidden;
 `
 
-const MpthreeWrap = styled.div`
+const MpthreePlay = styled.div`
   position: absolute;
   display: flex;
   justify-content: center;
@@ -464,6 +464,10 @@ const MpthreeWrap = styled.div`
 
   :hover {
     cursor: pointer;
+  }
+
+  @media screen and (width < 501px) {
+    margin: 60px 80px;
   }
 `
 
@@ -482,6 +486,10 @@ const MpthreeStop = styled.div`
   :hover {
     cursor: pointer;
   }
+
+  @media screen and (width < 501px) {
+    margin: 60px 124px;
+  }
 `
 
 const ShowNick = styled.div`
@@ -499,7 +507,7 @@ const Nickinput = styled.input`
   border: 0px;
   outline: none;
   text-align: center;
-  margin: 8px;
+  margin: 16px 0 0 8px;
 `
 
 const ChangeIcon = styled.div`
