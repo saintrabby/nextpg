@@ -38,7 +38,7 @@ const MainPage = () => {
   const monomod = false
   const router = useRouter()
 
-  const ver = 'v0.1'
+  const ver = 'v0.2'
 
   const listup = (data) => {
 
@@ -236,7 +236,11 @@ const MainPage = () => {
             .then((r) => {
               ids = r.val() ? r.val() : []
               ids.push(nicks)
-              router.components['/MainPage'].props.pageProps = { id: nicks, count: people + 1 }
+
+              let rprops = router.components['/MainPage'].props.pageProps
+              let icprops = { ...rprops, id: nicks, count: people + 1 }
+              router.components['/MainPage'].props.pageProps = icprops
+
               set(ref(realDB, 'fbch/ids/'), ids)
               set(ref(realDB, 'fbch/who/'), people + 1)
             })
@@ -292,6 +296,7 @@ const MainPage = () => {
     // set(ref(realDB, 'mono/lognum'), null)
     // set(ref(realDB, 'mono/waiting'), null)
 
+    router.components['/MainPage'].props.pageProps.ad?.load()
     let myid = (router.components['/MainPage'].props.pageProps.id)
     let idcount = router.components['/MainPage'].props.pageProps.count
 
@@ -322,16 +327,20 @@ const MainPage = () => {
 
   useEffect(() => {
     onmousedown = () => {
-      console.log(bgm)
 
       if (bgm.ad) {
         if (bgm.ad?.ended)
           bgm.ad?.load()
-        else
-          console.log('playing')
+        // else
+        //   console.log('playing')
       }
       else {
         bgm.ad = new Audio(bgm.m)
+
+        let rprops = router.components['/MainPage'].props.pageProps
+        let adprops = { ...rprops, ad: bgm.ad }
+        router.components['/MainPage'].props.pageProps = adprops
+
         bgm.ad.volume = 0.5
         bgm.ad.play()
       }
