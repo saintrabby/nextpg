@@ -94,16 +94,21 @@ const FileSel = styled.input`
   background: none;
   border: 1px solid grey;
   z-index: 1;
+  margin: 16px 0 0 16px;
 
   ::-webkit-file-upload-button {
     display: none;
+  }
+
+  :hover {
+    cursor: pointer;
   }
 `
 
 const Filelabel = styled.div`
   position: absolute;
   font-size: 20px;
-  margin: 30px;
+  margin: 48px 0 0 48px;
 
   :hover {
     cursor: default;
@@ -117,7 +122,7 @@ const Trash = styled.div`
   border: 1px solid grey;
   border-radius: 20px;
   font-size: 70px;
-  margin-left: 200px;
+  margin: 16px 0 0 248px;
 
   :hover {
     cursor: pointer;
@@ -142,6 +147,10 @@ const ShowFile = styled.div`
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+
+  :hover {
+    cursor: pointer;
+  }
 `
 
 const ImageViewWrap = styled.div`

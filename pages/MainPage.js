@@ -8,6 +8,7 @@ import { realDB } from '../public/fbconfig';
 import { child, get, getDatabase, off, onValue, ref, remove, set } from 'firebase/database';
 import styled from 'styled-components'
 import Fbstorage from '../public/components/fbstorage';
+import Fb from '../public/fbfunc';
 // import styles from '../styles/Home.module.css'
 
 const MainPage = () => {
@@ -22,6 +23,10 @@ const MainPage = () => {
   const [story, setStory] = useState(null)
   const [chatOn, setChatOn] = useState(false)
 
+  const [bgm, setBgm] = useState({ m: null, ad: null })
+  // const [nobgm, setNobgm] = useState(false)
+  const [bgmpaused, setBgmpaused] = useState(false)
+
   const [people, setPeople] = useState(0)
 
   let nicks = ''
@@ -30,6 +35,7 @@ const MainPage = () => {
   const scrollref = useRef(null)
 
   const stopdbload = false
+  const monomod = false
   const router = useRouter()
 
   const ver = 'v0.1'
@@ -40,26 +46,25 @@ const MainPage = () => {
       return
 
     if (data === 1) {
-      // let dbref = ref(realDB)
-      // get(child(dbref, `fbch/chat`))
-      //   .then((r) => {
-      //     if (r.val() === null)
-      //       return console.log('no data')
-
-      //     setClist(r.val())
-      //   })
       chatConnect()
       loadStory()
+      audioPlay()
+
+      if (monomod)
+        console.log('visit - mono')
+      else {
+        let dbref = ref(realDB)
+
+        get(child(dbref, `fbch/visit`))
+          .then(r => set(ref(realDB, `fbch/visit`), r.val() + 1))
+      }
+
       return console.log('start')
     }
 
     let chatlist = [...clist]
     chatlist.push(data)
 
-    // data.docs.map((v, i) => {
-    //   chatlist.push(v.data())
-    // })
-    // setCnum(cnum + 1)
     setClist(chatlist)
   }
 
@@ -151,7 +156,7 @@ const MainPage = () => {
     onValue(dbref,
       (s) => {
         // console.log(s.val().fbch)
-        console.log('connect')
+        // console.log('connect')
         get(child(dbref, `fbch/chat`))
           .then((r) => {
             if (r.val() === null)
@@ -207,31 +212,39 @@ const MainPage = () => {
 
   const NickOk = (e) => {
     if (e.key === 'Enter') {
-      if (nicks === '모노쿠마') {
-        setNick('')
-        setMono(true)
-        console.log('모노쿠마는 관리자용 닉네임입니다')
-      }
-      else {
+      if (monomod) {
+        console.log('mono id')
+
         setNick(nicks)
         setMynick(true)
-        setMono(false)
-
-        let dbref = ref(realDB)
-        let ids = []
-
-        get(child(dbref, `fbch/ids`))
-          .then((r) => {
-            ids = r.val() ? r.val() : []
-            ids.push(nicks)
-            router.components['/MainPage'].props.pageProps = { id: nicks, count: people + 1 }
-            set(ref(realDB, 'fbch/ids/'), ids)
-            set(ref(realDB, 'fbch/who/'), people + 1)
-          })
       }
+      else {
+        if (nicks === '모노쿠마') {
+          setNick('')
+          setMono(true)
+          console.log('모노쿠마는 관리자용 닉네임입니다')
+        }
+        else {
+          setNick(nicks)
+          setMynick(true)
+          setMono(false)
 
-      // setNick(nicks)
-      // setMynick(true)
+          let dbref = ref(realDB)
+          let ids = []
+
+          get(child(dbref, `fbch/ids`))
+            .then((r) => {
+              ids = r.val() ? r.val() : []
+              ids.push(nicks)
+              router.components['/MainPage'].props.pageProps = { id: nicks, count: people + 1 }
+              set(ref(realDB, 'fbch/ids/'), ids)
+              set(ref(realDB, 'fbch/who/'), people + 1)
+            })
+
+          get(child(dbref, `fbch/chattoday`))
+            .then(r => set(ref(realDB, `fbch/chattoday`), r.val() + 1))
+        }
+      }
     }
   }
 
@@ -241,6 +254,35 @@ const MainPage = () => {
 
   const scrolldown = (t = 100) => {
     setTimeout(() => scrollref.current?.scrollIntoView({ block: 'center' }), t)
+  }
+
+  const audioPlay = () => {
+    // let myaudio = new Audio()
+    // console.log('audio')
+
+    if (bgm.m) {
+      if (bgm.ad) {
+        if (bgm.ad?.paused) {
+          bgm.ad?.play()
+        }
+        else {
+          bgm.ad?.pause()
+        }
+
+        setBgmpaused(bgm.ad?.paused)
+      }
+    }
+    else {
+      Fb('getDownloadURL', '0077.mp3')
+        .then((r) => {
+          setBgm({ m: r, ad: bgm.ad })
+        })
+    }
+  }
+
+  const audioStop = () => {
+    bgm.ad?.load()
+    // bgm.ad?.pause()
   }
 
   const pageover = () => {
@@ -278,6 +320,24 @@ const MainPage = () => {
     return () => pageover()
   }, [])
 
+  useEffect(() => {
+    onmousedown = () => {
+      console.log(bgm)
+
+      if (bgm.ad) {
+        if (bgm.ad?.ended)
+          bgm.ad?.load()
+        else
+          console.log('playing')
+      }
+      else {
+        bgm.ad = new Audio(bgm.m)
+        bgm.ad.volume = 0.5
+        bgm.ad.play()
+      }
+    }
+  }, [bgm.m])
+
   // const [inkey, setInkey] = useState(null)
   // useEffect(() => {
   //   document.onkeydown = (e) => {
@@ -300,6 +360,13 @@ const MainPage = () => {
 
   return (
     <MainWrap>
+      <MpthreeWrap onClick={() => audioPlay()}>
+        {bgmpaused ? <div>▶</div> : <div style={{ fontSize: '24px' }}>∥</div>}
+        {/* <iframe src={bgm.m} allow='autoplay'></iframe> */}
+        {/* <audio src={bgm.m} type='audio/mp3' autoPlay controls loop style={{ width: '200px', height: '60px' }}></audio> */}
+      </MpthreeWrap>
+      <MpthreeStop onClick={() => audioStop()}>■</MpthreeStop>
+
       <div style={{ height: '60px', padding: '20px', margin: 'auto' }}>닉네임 :
         {mynick ? <ShowNick>{nick}</ShowNick>
           : <Nickinput
@@ -372,6 +439,40 @@ const MainWrap = styled.div`
   color: white;
   overflow-x: hidden;
   overflow-y: hidden;
+`
+
+const MpthreeWrap = styled.div`
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 4px;
+  margin: 16px 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #666;
+
+  :hover {
+    cursor: pointer;
+  }
+`
+
+const MpthreeStop = styled.div`
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 4px;
+  margin: 16px 64px;
+  width: 40px;
+  height: 40px;
+  border-radius: 20%;
+  background-color: #666;
+
+  :hover {
+    cursor: pointer;
+  }
 `
 
 const ShowNick = styled.div`
