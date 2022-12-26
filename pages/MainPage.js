@@ -34,17 +34,22 @@ const MainPage = () => {
   const chatref = useRef()
   const scrollref = useRef(null)
 
+  //server load
   const stopdbload = false
-  const monomod = false
+  //
+  const monomod = true
+
   const router = useRouter()
 
   const ver = 'v0.2'
 
+  //chatlist
   const listup = (data) => {
 
     if (stopdbload)
       return
 
+    //first
     if (data === 1) {
       chatConnect()
       loadStory()
@@ -87,46 +92,6 @@ const MainPage = () => {
 
       let dbref = ref(realDB)
 
-      // if (nick === '모노쿠마') {
-      //   get(child(dbref, `mono`))
-      //     .then((r) => {
-      //       let loNcheck = (parseInt(localStorage.getItem('lognum')) === r.val().lognum)
-
-      //       if (loNcheck && r.val().adcheck) {
-      //         get(child(dbref, `fbch/chat`))
-      //           .then((r) => {
-      //             let dbnum = r.size
-
-      //             set(ref(realDB, 'fbch/chat/' + dbnum), upchat)
-      //             chatref.current.value = ''
-
-      //             listup(upchat)
-
-      //             return
-      //           })
-      //       }
-      //       else {
-      //         let checking = (chats << 2) === r.val().cuma
-
-      //         if (checking) {
-      //           let lognum = parseInt((Math.floor(Math.random() * 9 + 1) + Math.random()) * 100000)
-      //           localStorage.setItem('lognum', lognum)
-
-      //           set(ref(realDB, 'mono/waiting'), true)
-      //           set(ref(realDB, 'mono/lognum'), lognum)
-      //           chatref.current.value = ''
-
-      //           return console.log('관리자 허가 대기중')
-      //         }
-      //         else {
-      //           console.log('해당 닉네임은 관리자만 사용가능')
-      //           chatref.current.value = '해당 닉네임은 관리자용입니다'
-      //           return router.reload()
-      //         }
-      //       }
-      //     })
-      // }
-
       // else
       get(child(dbref, `fbch/chat`))
         .then((r) => {
@@ -143,11 +108,6 @@ const MainPage = () => {
   const chatConnect = () => {
 
     let dbref = ref(realDB)
-    // const dref = get(child(dbref, `fbch/chat`))
-    // const q = query(dbref)
-
-    // console.log('connect')
-    // remove(dbref)
 
     console.log(ver)
 
@@ -156,7 +116,6 @@ const MainPage = () => {
     onValue(dbref,
       (s) => {
         // console.log(s.val().fbch)
-        // console.log('connect')
         get(child(dbref, `fbch/chat`))
           .then((r) => {
             if (r.val() === null)
@@ -257,7 +216,7 @@ const MainPage = () => {
   }
 
   const scrolldown = (t = 100) => {
-    setTimeout(() => scrollref.current?.scrollIntoView({ block: 'center' }), t)
+    setTimeout(() => scrollref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), t)
   }
 
   const audioPlay = () => {
@@ -291,10 +250,6 @@ const MainPage = () => {
 
   const pageover = () => {
     let dbref = ref(realDB)
-    // localStorage.removeItem('lognum')
-    // set(ref(realDB, 'mono/adcheck'), false)
-    // set(ref(realDB, 'mono/lognum'), null)
-    // set(ref(realDB, 'mono/waiting'), null)
 
     router.components['/MainPage'].props.pageProps.ad?.load()
     let myid = (router.components['/MainPage'].props.pageProps.id)
@@ -311,7 +266,11 @@ const MainPage = () => {
 
       off(dbref)
     }
+
+    window.removeEventListener('beforeunload', () => { })
   }
+
+
 
   useEffect(() => {
     listup(1)
@@ -367,8 +326,85 @@ const MainPage = () => {
   //     .then((res) => console.log(res))
   // }, [])
 
+  const [canvas, setCanvas] = useState(null)
+  const [canvasSize, setCanvasSize] = useState(null)
+  const [ctx, setCtx] = useState(null)
+  const [sobjs, setSobjs] = useState([{
+    cx: 0,
+    x: 1000,
+    y: 60,
+    siz: 30,
+  }])
+
+  //Init
+  useEffect(() => {
+    let can = document.querySelector('canvas')
+    setCanvas(can)
+    setCtx(can.getContext('2d'))
+
+    console.log('getCanvas')
+  }, [])
+
+  useEffect(() => {
+    if (canvas === null)
+      return
+
+    canvas.width = canvas.clientWidth
+    canvas.height = canvas.clientHeight
+    setCanvasSize({ x: canvas.width, y: canvas.height })
+  }, [canvas])
+
+  useEffect(() => {
+    if (ctx === null)
+      return
+
+    console.log('ef')
+    ObjsAni()
+
+  }, [canvas])
+
+  const CanvasClear = () => {
+    canvas.width = canvas.width
+  }
+
+  const ObjsAni = () => {
+    if (sobjs === null)
+      return
+
+    CanvasClear()
+    ctx.beginPath()
+
+    let objs = sobjs
+
+    if (objs[0].y > canvas.height + objs[0].siz)
+      objs[0].y = -objs[0].siz
+
+    objs[0].y += 2
+    objs[0].x += Math.cos((objs[0].cx++) * 0.01)
+
+    let oneObj = ctx.createRadialGradient(objs[0].x, objs[0].y, 0, objs[0].x, objs[0].y, objs[0].siz)
+    oneObj.addColorStop(0, '#fff')
+    oneObj.addColorStop(0.2, '#aaa')
+    oneObj.addColorStop(1, 'rgba(250, 250, 250, 0)')
+
+    ctx.fillStyle = oneObj
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    // ctx.fill()
+
+    // setSobjs(objs)
+
+    setTimeout(() => {
+      ObjsAni()
+    }, 10);
+  }
+
+
+
   return (
     <MainWrap>
+
+      <canvas style={{ position: 'fixed', width: '100%', height: '100%', marginLeft: '-50%' }} />
+
       <MpthreePlay onClick={() => audioPlay()}>
         {bgmpaused ? <div>▶</div> : <div style={{ fontSize: '24px' }}>∥</div>}
         {/* <iframe src={bgm.m} allow='autoplay'></iframe> */}
@@ -376,14 +412,16 @@ const MainPage = () => {
       </MpthreePlay>
       <MpthreeStop onClick={() => audioStop()}>■</MpthreeStop>
 
-      <div style={{ height: '60px', margin: 'auto' }}>닉네임 :
+      <NickWrap><span>닉네임 :</span>
         {mynick ? <ShowNick>{nick}</ShowNick>
           : <Nickinput
+            style={{ position: 'sticky' }}
             placeholder='nickname'
             maxLength={10}
             onChange={(e) => NickIn(e.target.value)}
             onKeyDown={(e) => NickOk(e)} />}
-      </div>
+      </NickWrap>
+
       {mono ? <div style={{ lineHeight: '20px' }}>사용할 수 없는 닉네임입니다</div> : <div style={{ lineHeight: '20px' }}></div>}
 
       <ChangeIcon onClick={() => ChatChange()}>↪</ChangeIcon>
@@ -492,12 +530,28 @@ const MpthreeStop = styled.div`
   }
 `
 
+const MainCanvas = styled.canvas`
+  position: fixed;
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* z-index: 1; */
+  /* background-color: #282c34; */
+`
+
+const NickWrap = styled.div`
+  height: 60px;
+  margin: auto;
+`
+
 const ShowNick = styled.div`
+  position: sticky;
   border: 1px solid wheat;
-  min-width: 200px;
+  border-radius: 6px;
+  width: 200px;
   height: 25px;
   display: inline-block;
-  margin: 8px;
+  margin: 20px 0 0 8px;
 `
 
 const Nickinput = styled.input`
