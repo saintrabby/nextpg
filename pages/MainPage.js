@@ -347,7 +347,7 @@ const MainPage = () => {
     can.height = can.clientHeight
     setCanvasSize({ x: can.width, y: can.height })
 
-    console.log('getCanvas')
+    // console.log('getCanvas')
   }, [])
 
   useEffect(() => {
@@ -361,7 +361,7 @@ const MainPage = () => {
     ObjCreate()
 
     onresize = () => {
-      console.log('re')
+      // console.log('re')
       // setCanvasSize({ x: 100, y: window.innerHeight })
     }
   }, [canvas])
@@ -379,7 +379,7 @@ const MainPage = () => {
   }
 
   const ObjCreate = () => {
-    console.log('create')
+    // console.log('create')
     let objs = []
 
     for (let i = 0; i < 30; i++) {
