@@ -34,14 +34,24 @@ const MainPage = () => {
   const chatref = useRef()
   const scrollref = useRef(null)
 
+  const [canvas, setCanvas] = useState(null)
+  const [canvasSize, setCanvasSize] = useState(null)
+  const [ctx, setCtx] = useState(null)
+  const [sobjs, setSobjs] = useState(null)
+
+  const ObjCnt = 10
+  let Cobj = 0
+
+
+
   //server load
   const stopdbload = false
   //
-  const monomod = true
+  const monomod = false
 
   const router = useRouter()
 
-  const ver = 'v0.2'
+  const ver = 'v0.3'
 
   //chatlist
   const listup = (data) => {
@@ -326,21 +336,16 @@ const MainPage = () => {
   //     .then((res) => console.log(res))
   // }, [])
 
-  const [canvas, setCanvas] = useState(null)
-  const [canvasSize, setCanvasSize] = useState(null)
-  const [ctx, setCtx] = useState(null)
-  const [sobjs, setSobjs] = useState([{
-    cx: 0,
-    x: 1000,
-    y: 60,
-    siz: 30,
-  }])
 
-  //Init
+
+  //Canvas Init
   useEffect(() => {
     let can = document.querySelector('canvas')
     setCanvas(can)
     setCtx(can.getContext('2d'))
+    can.width = can.clientWidth
+    can.height = can.clientHeight
+    setCanvasSize({ x: can.width, y: can.height })
 
     console.log('getCanvas')
   }, [])
@@ -349,49 +354,86 @@ const MainPage = () => {
     if (canvas === null)
       return
 
-    canvas.width = canvas.clientWidth
-    canvas.height = canvas.clientHeight
+    // canvas.width = canvas.clientWidth
+    // canvas.height = canvas.clientHeight
     setCanvasSize({ x: canvas.width, y: canvas.height })
+
+    ObjCreate()
+
+    onresize = () => {
+      console.log('re')
+      // setCanvasSize({ x: 100, y: window.innerHeight })
+    }
   }, [canvas])
 
   useEffect(() => {
     if (ctx === null)
       return
 
-    console.log('ef')
     ObjsAni()
 
-  }, [canvas])
+  }, [sobjs])
 
   const CanvasClear = () => {
     canvas.width = canvas.width
+  }
+
+  const ObjCreate = () => {
+    console.log('create')
+    let objs = []
+
+    for (let i = 0; i < 30; i++) {
+      let ranCx = Math.random() * 180
+      let ranX = Math.random() * canvas.width
+      let ranY = Math.random() * canvas.height
+      let ranSize = Math.random() * 30 + 5
+      let ranXw = Math.random() * 0.05 + 0.001
+      let oneObj = {
+        cx: ranCx,
+        size: ranSize,
+        x: ranX,
+        y: -ranY,
+        xw: ranXw,
+      }
+
+      objs.push(oneObj)
+    }
+
+    setSobjs(objs)
+
+    // console.log(objs)
   }
 
   const ObjsAni = () => {
     if (sobjs === null)
       return
 
-    CanvasClear()
-    ctx.beginPath()
+    if (sobjs.length > 0) {
+      // console.log('ani')
+      CanvasClear()
 
-    let objs = sobjs
+      for (let i = 0; i < sobjs.length; i++) {
+        ctx.beginPath()
+        if (sobjs[i].y > canvas.height + sobjs[i].size) {
+          sobjs[i].y = -sobjs[i].size
+          // continue
+        }
 
-    if (objs[0].y > canvas.height + objs[0].siz)
-      objs[0].y = -objs[0].siz
+        sobjs[i].y += 1
+        sobjs[i].x += Math.cos((sobjs[i].cx++) * sobjs[i].xw)
 
-    objs[0].y += 2
-    objs[0].x += Math.cos((objs[0].cx++) * 0.01)
+        let radgrad = ctx.createRadialGradient(sobjs[i].x, sobjs[i].y, 0, sobjs[i].x, sobjs[i].y, sobjs[i].size)
+        radgrad.addColorStop(0, '#fff')
+        radgrad.addColorStop(0.2, '#aaa')
+        radgrad.addColorStop(1, 'rgba(250, 250, 250, 0)')
 
-    let oneObj = ctx.createRadialGradient(objs[0].x, objs[0].y, 0, objs[0].x, objs[0].y, objs[0].siz)
-    oneObj.addColorStop(0, '#fff')
-    oneObj.addColorStop(0.2, '#aaa')
-    oneObj.addColorStop(1, 'rgba(250, 250, 250, 0)')
+        ctx.fillStyle = radgrad
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+      }
 
-    ctx.fillStyle = oneObj
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    }
+
     // ctx.fill()
-
-    // setSobjs(objs)
 
     setTimeout(() => {
       ObjsAni()
@@ -403,7 +445,7 @@ const MainPage = () => {
   return (
     <MainWrap>
 
-      <canvas style={{ position: 'fixed', width: '100%', height: '100%', marginLeft: '-50%' }} />
+      <canvas style={{ position: 'absolute', width: '100%', height: '100%', marginLeft: '-50%' }} />
 
       <MpthreePlay onClick={() => audioPlay()}>
         {bgmpaused ? <div>▶</div> : <div style={{ fontSize: '24px' }}>∥</div>}
