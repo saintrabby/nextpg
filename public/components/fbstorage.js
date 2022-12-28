@@ -19,7 +19,7 @@ const Fbstorage = () => {
 
   return (
     <div>
-      {fbimg ? <img src={fbimg} style={{ maxWidth: '200px', maxHeight: '200px' }} /> : ''}
+      {fbimg ? <img src={fbimg} style={{ maxWidth: '200px', maxHeight: '200px', opacity: '0.8' }} /> : ''}
     </div>
   )
 }

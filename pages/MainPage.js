@@ -25,7 +25,7 @@ const MainPage = () => {
 
   const [bgm, setBgm] = useState({ m: null, ad: null })
   // const [nobgm, setNobgm] = useState(false)
-  const [bgmpaused, setBgmpaused] = useState(false)
+  const [bgmpaused, setBgmpaused] = useState(true)
 
   const [people, setPeople] = useState(0)
 
@@ -35,12 +35,9 @@ const MainPage = () => {
   const scrollref = useRef(null)
 
   const [canvas, setCanvas] = useState(null)
-  const [canvasSize, setCanvasSize] = useState(null)
+  // const [canvasSize, setCanvasSize] = useState(null)
   const [ctx, setCtx] = useState(null)
   const [sobjs, setSobjs] = useState(null)
-
-  const ObjCnt = 10
-  let Cobj = 0
 
 
 
@@ -53,7 +50,7 @@ const MainPage = () => {
 
   const ver = 'v0.3'
 
-  //chatlist
+  //------------------------------PageStart Setting------------------------------
   const listup = (data) => {
 
     if (stopdbload)
@@ -83,6 +80,16 @@ const MainPage = () => {
     setClist(chatlist)
   }
 
+
+  //------------------------------Main Board------------------------------
+  const loadStory = () => {
+    let dbref = ref(realDB)
+
+    get(child(dbref, `fbch/story`))
+      .then((res) => setStory(res.val().first))
+  }
+
+  //------------------------------Chatting------------------------------
   const chatIn = (e) => {
     chats = e
   }
@@ -125,7 +132,6 @@ const MainPage = () => {
 
     onValue(dbref,
       (s) => {
-        // console.log(s.val().fbch)
         get(child(dbref, `fbch/chat`))
           .then((r) => {
             if (r.val() === null)
@@ -153,26 +159,12 @@ const MainPage = () => {
           })
       })
 
-    // get(child(dbref, `fbch/chat`))
-    //   .then((r) => {
-    //     if (r.val() === null)
-    //       return console.log('no data')
-
-    //     setClist(r.val())
-    //   })
   }
 
   const listsort = (list) => {
     list.sort((a, b) => a.msgnum - b.msgnum)
     setCnum(list[list.length - 1].msgnum)
     return list
-  }
-
-  const loadStory = () => {
-    let dbref = ref(realDB)
-
-    get(child(dbref, `fbch/story`))
-      .then((res) => setStory(res.val().first))
   }
 
   const NickIn = (e) => {
@@ -228,10 +220,13 @@ const MainPage = () => {
   const scrolldown = (t = 100) => {
     setTimeout(() => scrollref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), t)
   }
+  //------------------------------Chatting------------------------------
 
+
+
+  //------------------------------Audio------------------------------
   const audioPlay = () => {
     // let myaudio = new Audio()
-    // console.log('audio')
 
     if (bgm.m) {
       if (bgm.ad) {
@@ -255,8 +250,12 @@ const MainPage = () => {
 
   const audioStop = () => {
     bgm.ad?.load()
+    setBgmpaused(true)
     // bgm.ad?.pause()
   }
+  //------------------------------Audio------------------------------
+
+
 
   const pageover = () => {
     let dbref = ref(realDB)
@@ -300,6 +299,7 @@ const MainPage = () => {
       if (bgm.ad) {
         if (bgm.ad?.ended)
           bgm.ad?.load()
+        setBgmpaused(true)
         // else
         //   console.log('playing')
       }
@@ -312,9 +312,17 @@ const MainPage = () => {
 
         bgm.ad.volume = 0.5
         bgm.ad.play()
+
+        setBgmpaused(false)
       }
     }
   }, [bgm.m])
+
+  useEffect(() => {
+    window.hi = () => {
+      console.log('hello')
+    }
+  }, [])
 
   // const [inkey, setInkey] = useState(null)
   // useEffect(() => {
@@ -338,31 +346,29 @@ const MainPage = () => {
 
 
 
-  //Canvas Init
+
+
+  //------------------------------Canvas------------------------------
   useEffect(() => {
     let can = document.querySelector('canvas')
     setCanvas(can)
     setCtx(can.getContext('2d'))
     can.width = can.clientWidth
     can.height = can.clientHeight
-    setCanvasSize({ x: can.width, y: can.height })
-
-    // console.log('getCanvas')
   }, [])
 
   useEffect(() => {
     if (canvas === null)
       return
 
-    // canvas.width = canvas.clientWidth
-    // canvas.height = canvas.clientHeight
-    setCanvasSize({ x: canvas.width, y: canvas.height })
-
-    ObjCreate()
+    //오브젝트(반응형)
+    if (window.innerWidth > 1000) { ObjCreate(40) }
+    else if (window.innerWidth > 501) { ObjCreate(30) }
+    else { ObjCreate(20) }
 
     onresize = () => {
-      // console.log('re')
-      // setCanvasSize({ x: 100, y: window.innerHeight })
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
     }
   }, [canvas])
 
@@ -378,30 +384,29 @@ const MainPage = () => {
     canvas.width = canvas.width
   }
 
-  const ObjCreate = () => {
-    // console.log('create')
+  const ObjCreate = (n) => {
     let objs = []
 
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < n; i++) {
       let ranCx = Math.random() * 180
       let ranX = Math.random() * canvas.width
       let ranY = Math.random() * canvas.height
-      let ranSize = Math.random() * 30 + 5
+      let ranSize = Math.random() * 40 + 5
       let ranXw = Math.random() * 0.05 + 0.001
+      let ranSp = Math.random() * 1.5 + 0.5
       let oneObj = {
         cx: ranCx,
         size: ranSize,
         x: ranX,
         y: -ranY,
         xw: ranXw,
+        sp: ranSp,
       }
 
       objs.push(oneObj)
     }
 
     setSobjs(objs)
-
-    // console.log(objs)
   }
 
   const ObjsAni = () => {
@@ -409,17 +414,20 @@ const MainPage = () => {
       return
 
     if (sobjs.length > 0) {
-      // console.log('ani')
       CanvasClear()
 
       for (let i = 0; i < sobjs.length; i++) {
         ctx.beginPath()
         if (sobjs[i].y > canvas.height + sobjs[i].size) {
           sobjs[i].y = -sobjs[i].size
+          sobjs[i].cx = Math.random() * 180
+          sobjs[i].size = Math.random() * 40 + 5
+          // sobjs[i].xw = Math.random() * 0.05 + 0.001
+          sobjs[i].sp = Math.random() * 1.5 + 0.5
           // continue
         }
 
-        sobjs[i].y += 1
+        sobjs[i].y += sobjs[i].sp
         sobjs[i].x += Math.cos((sobjs[i].cx++) * sobjs[i].xw)
 
         let radgrad = ctx.createRadialGradient(sobjs[i].x, sobjs[i].y, 0, sobjs[i].x, sobjs[i].y, sobjs[i].size)
@@ -439,6 +447,7 @@ const MainPage = () => {
       ObjsAni()
     }, 10);
   }
+  //------------------------------Canvas------------------------------
 
 
 
@@ -457,14 +466,14 @@ const MainPage = () => {
       <NickWrap><span>닉네임 :</span>
         {mynick ? <ShowNick>{nick}</ShowNick>
           : <Nickinput
-            style={{ position: 'sticky' }}
+            style={{ position: 'sticky', opacity: '0.6' }}
             placeholder='nickname'
             maxLength={10}
             onChange={(e) => NickIn(e.target.value)}
             onKeyDown={(e) => NickOk(e)} />}
       </NickWrap>
 
-      {mono ? <div style={{ lineHeight: '20px' }}>사용할 수 없는 닉네임입니다</div> : <div style={{ lineHeight: '20px' }}></div>}
+      {mono ? <CantMono>사용할 수 없는 닉네임입니다</CantMono> : <div style={{ lineHeight: '20px' }}></div>}
 
       <ChangeIcon onClick={() => ChatChange()}>↪</ChangeIcon>
 
@@ -606,6 +615,15 @@ const Nickinput = styled.input`
   margin: 16px 0 0 8px;
 `
 
+const CantMono = styled.div`
+  line-height: 20px;
+
+  @media screen and (width < 501px) {
+    width: 120px;
+    margin: 0 10px 0 auto;
+  }
+`
+
 const ChangeIcon = styled.div`
   width: 30px;
   height: 30px;
@@ -630,7 +648,7 @@ const CenterWrap = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background-color: grey;
+  background-color: rgba(130, 130, 130, 0.6);
   /* border: 2px solid white; */
   border-radius: 20px;
   position: fixed;
@@ -661,7 +679,7 @@ const CenterBtn = styled.div`
   height: 60px;
   border-radius: 20px;
   border: 0;
-  background-color: #555;
+  background-color: rgba(80, 80, 80, 0.6);
   color: white;
   font-size: 20px;
 
