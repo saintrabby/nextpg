@@ -48,8 +48,6 @@ const MainPage = () => {
 
   const router = useRouter()
 
-  const ver = 'v0.3'
-
   //------------------------------PageStart Setting------------------------------
   const listup = (data) => {
 
@@ -125,8 +123,6 @@ const MainPage = () => {
   const chatConnect = () => {
 
     let dbref = ref(realDB)
-
-    console.log(ver)
 
     scrolldown(1000)
 

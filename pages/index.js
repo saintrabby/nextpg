@@ -12,17 +12,19 @@ export default function Home() {
   const [btn2, setBtn2] = useState(false)
   const [btn3, setBtn3] = useState(false)
 
+  const ver = '- v0.4 -'
+
   // console.log(('td'.match(/[td]/g)))
 
   const Btn1Click = () => {
     return <div>
       <Xbtn onClick={() => setBtn1(false)}>❌</Xbtn>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '60px' }}>
-        <div>안녕하세요</div>
+        <div>안녕하세요 !</div>
         <div>신입 프론트엔드 개발자 지망생입니다</div>
-        <div>React로 만든 페이지 입니다</div>
+        <div>React + NextJS로 만든 페이지 입니다</div>
         <div>UX에 신경을 쓰는 편이고, 항상 최선을 다합니다</div>
-        <div>이쁘게 봐주세요...^^</div>
+        <div>이쁘게 봐주세요...^^💦</div>
       </div>
     </div>
   }
@@ -46,6 +48,8 @@ export default function Home() {
   }
 
   useEffect(() => {
+    console.log(ver)
+
     onkeydown = (e) => {
       if (e.key === 'Escape') {
         setBtn1(false)
@@ -75,19 +79,25 @@ export default function Home() {
         </CircleDiv>
 
         {btn1 ?
-          <DescModal>
-            {(Btn1Click())}
-          </DescModal>
+          <ModalWrap>
+            <div onClick={() => setBtn1(!btn1)} style={{ width: '100%', height: '100%' }}></div>
+            <DescModal>
+              {(Btn1Click())}
+            </DescModal>
+          </ModalWrap>
           : ''}
 
         {btn2 ?
-          <DescModal>
-            {(Btn2Click())}
-          </DescModal>
+          <ModalWrap>
+            <div onClick={() => setBtn2(!btn2)} style={{ width: '100%', height: '100%' }}></div>
+            <DescModal>
+              {(Btn2Click())}
+            </DescModal>
+          </ModalWrap>
           : ''}
 
         <DescDiv>
-          <Desc btnstate={btn3}>기능이 없습니다^^</Desc>
+          <Desc btnstate={btn3}>아직 기능이 없습니다^^</Desc>
         </DescDiv>
       </Center>
     </MainWrap>
@@ -265,6 +275,16 @@ const Desc = styled.div`
   transition: all ease .3s;
   font-size: 40px;
   margin-top: ${(props) => props.btnstate ? `60px` : `-200px`};
+`
+
+const ModalWrap = styled.div`
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
 `
 
 const DescModal = styled.div`
