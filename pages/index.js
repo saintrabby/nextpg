@@ -15,18 +15,6 @@ export default function Home() {
   const Dmode = { bgc: '#282c34', c1: '#888', c2: 'rgba(20, 20, 20, 0.8)', fc: '#eee' }
   const Nmode = { bgc: '#eee', c1: '#444', c2: 'rgba(220, 220, 220, 0.8)', fc: '#282c34' }
 
-  console.log(Dmode.fc)
-
-  const ReverseColor = (str) => {
-    let newstr = '#'
-
-    for (let i = 1; i < str.length; i++) {
-      newstr += (15 - parseInt(str[i], 16)).toString(16)
-    }
-
-    return (newstr)
-  }
-
   const [modedat, setModedat] = useState(Dmode)
 
   const ver = '- v0.5 -'
