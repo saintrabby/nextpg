@@ -12,9 +12,24 @@ export default function Home() {
   const [btn2, setBtn2] = useState(false)
   const [btn3, setBtn3] = useState(false)
 
-  const ver = '- v0.4 -'
+  const Dmode = { bgc: '#282c34', c1: '#888', c2: 'rgba(20, 20, 20, 0.8)', fc: '#eee' }
+  const Nmode = { bgc: '#eee', c1: '#444', c2: 'rgba(220, 220, 220, 0.8)', fc: '#282c34' }
 
-  // console.log(('td'.match(/[td]/g)))
+  console.log(Dmode.fc)
+
+  const ReverseColor = (str) => {
+    let newstr = '#'
+
+    for (let i = 1; i < str.length; i++) {
+      newstr += (15 - parseInt(str[i], 16)).toString(16)
+    }
+
+    return (newstr)
+  }
+
+  const [modedat, setModedat] = useState(Dmode)
+
+  const ver = '- v0.5 -'
 
   const Btn1Click = () => {
     return <div>
@@ -47,8 +62,25 @@ export default function Home() {
     </div>
   }
 
+  const ChangeMode = () => {
+    if (localStorage.getItem('Theme') === 'Dark') {
+      setModedat(Nmode)
+      localStorage.setItem('Theme', 'Normal')
+    }
+    else {
+      setModedat(Dmode)
+      localStorage.setItem('Theme', 'Dark')
+    }
+  }
+
+
+
   useEffect(() => {
     console.log(ver)
+
+    if (localStorage.getItem('Theme') === null) {
+      localStorage.setItem('Theme', 'Dark')
+    }
 
     onkeydown = (e) => {
       if (e.key === 'Escape') {
@@ -67,21 +99,22 @@ export default function Home() {
   }, [btn3])
 
   return (
-    <MainWrap>
+    <MainWrap mode={modedat}>
       {/* <MainPage /> */}
+      <ModeBtn onClick={() => ChangeMode()}>✴</ModeBtn>
       <Center>
         {/* <button onClick={() => router.push('/MainPage')}>H</button> */}
         <CircleDiv>
-          <CenterCircle1 onClick={() => setBtn1(!btn1)} btnstate={btn1}>🙋‍♂️</CenterCircle1>
-          <CenterCircle2 onClick={() => setBtn2(!btn2)} btnstate={btn2}>💬</CenterCircle2>
-          <CenterCircle3 onClick={() => setBtn3(!btn3)}>🚫</CenterCircle3>
-          <CenterCircle4 onClick={() => router.push('/MainPage')}>🆓</CenterCircle4>
+          <CenterCircle1 mode={modedat} onClick={() => setBtn1(!btn1)} btnstate={btn1}>🙋‍♂️</CenterCircle1>
+          <CenterCircle2 mode={modedat} onClick={() => setBtn2(!btn2)} btnstate={btn2}>💬</CenterCircle2>
+          <CenterCircle3 mode={modedat} onClick={() => setBtn3(!btn3)}>🚫</CenterCircle3>
+          <CenterCircle4 mode={modedat} onClick={() => router.push('/MainPage')}>🆓</CenterCircle4>
         </CircleDiv>
 
         {btn1 ?
           <ModalWrap>
             <div onClick={() => setBtn1(!btn1)} style={{ width: '100%', height: '100%' }}></div>
-            <DescModal>
+            <DescModal mode={modedat}>
               {(Btn1Click())}
             </DescModal>
           </ModalWrap>
@@ -90,7 +123,7 @@ export default function Home() {
         {btn2 ?
           <ModalWrap>
             <div onClick={() => setBtn2(!btn2)} style={{ width: '100%', height: '100%' }}></div>
-            <DescModal>
+            <DescModal mode={modedat}>
               {(Btn2Click())}
             </DescModal>
           </ModalWrap>
@@ -106,12 +139,24 @@ export default function Home() {
 
 const MainWrap = styled.div`
   text-align: center;
-  background-color: #282c34;
+  background-color: ${(props) => props.mode.bgc};
   height: 100%;
   min-height: 100vh;
-  color: white;
+  color: ${(props) => props.mode.fc};
   overflow-x: hidden;
   overflow-y: hidden;
+`
+
+const ModeBtn = styled.div`
+  position: fixed;
+  top: 16px;
+  right: 24px;
+  font-size: 40px;
+  z-index: 3;
+
+  :hover {
+    cursor: pointer;
+  }
 `
 
 const Center = styled.div`
@@ -147,7 +192,7 @@ const CenterCircle1 = styled.div`
   width: 100px;
   height: 100px;
   /* border: 5px solid pink; */
-  background-color: #888;
+  background-color: ${(props) => props.mode.c1};
   border-top-left-radius: 20%;
   transition: all ease .3s;
   font-size: 60px;
@@ -182,7 +227,7 @@ const CenterCircle2 = styled.div`
   width: 100px;
   height: 100px;
   /* border: 5px solid pink; */
-  background-color: #888;
+  background-color: ${(props) => props.mode.c1};
   border-top-right-radius: 20%;
   transition: all ease .3s;
   font-size: 60px;
@@ -217,7 +262,7 @@ const CenterCircle3 = styled.div`
   width: 100px;
   height: 100px;
   /* border: 5px solid pink; */
-  background-color: #888;
+  background-color: ${(props) => props.mode.c1};
   border-bottom-left-radius: 20%;
   transition: all ease .3s;
   font-size: 60px;
@@ -242,7 +287,7 @@ const CenterCircle4 = styled.div`
   width: 100px;
   height: 100px;
   /* border: 5px solid pink; */
-  background-color: #888;
+  background-color: ${(props) => props.mode.c1};
   border-bottom-right-radius: 20%;
   transition: all ease .3s;
   font-size: 60px;
@@ -294,7 +339,7 @@ const DescModal = styled.div`
   height: 90%;
   border: 1px solid burlywood;
   border-radius: 30px;
-  background-color: rgba(20, 20, 20, 0.8);
+  background-color: ${props => props.mode.c2};
   text-align: left;
   font-size: 40px;
   padding: 16px;
