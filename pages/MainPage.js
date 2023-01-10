@@ -13,32 +13,38 @@ import Fb from '../public/fbfunc';
 
 const MainPage = () => {
 
+  //name
   const [nick, setNick] = useState('')
-  const [mynick, setMynick] = useState(false)
+  const [hasNick, setHasNick] = useState(false)
+  //admin
   const [mono, setMono] = useState(false)
-  // const [cont, setCont] = useState('')
-  // const [getfbd, setGetfbd] = useState(null)
-  const [clist, setClist] = useState([])
-  const [cnum, setCnum] = useState(0)
-  const [story, setStory] = useState(null)
+
+  //nick-input-ing-norerender
+  let nicks = ''
+  //chat-input-ing-norerender
+  let chats = ''
+  
+  const [chatList, setChatList] = useState([])
+  const [chatNum, setChatNum] = useState(0)
   const [chatOn, setChatOn] = useState(false)
-
-  const [bgm, setBgm] = useState({ m: null, ad: null })
-  // const [nobgm, setNobgm] = useState(false)
-  const [bgmpaused, setBgmpaused] = useState(true)
-
   const [people, setPeople] = useState(0)
 
-  let nicks = ''
-  let chats = ''
-  const chatref = useRef()
-  const scrollref = useRef(null)
+  const [story, setStory] = useState(null)
 
+  const [bgm, setBgm] = useState({ m: null, ad: null })
+  const [bgmpaused, setBgmpaused] = useState(true)
+
+
+
+  const chatref = useRef()
+  const chatScrollRef = useRef(null)
+
+
+  //canvas_state
   const [canvas, setCanvas] = useState(null)
   // const [canvasSize, setCanvasSize] = useState(null)
   const [ctx, setCtx] = useState(null)
-  const [sobjs, setSobjs] = useState(null)
-
+  const [canvObjs, setCanvObjs] = useState(null)
 
 
   //server load
@@ -47,6 +53,8 @@ const MainPage = () => {
   const monomod = false
 
   const router = useRouter()
+
+
 
   //------------------------------PageStart Setting------------------------------
   const listup = (data) => {
@@ -72,11 +80,12 @@ const MainPage = () => {
       return console.log('start')
     }
 
-    let chatlist = [...clist]
+    let chatlist = [...chatList]
     chatlist.push(data)
 
-    setClist(chatlist)
+    setChatList(chatlist)
   }
+
 
 
   //------------------------------Main Board------------------------------
@@ -87,12 +96,14 @@ const MainPage = () => {
       .then((res) => setStory(res.val().first))
   }
 
+
+
   //------------------------------Chatting------------------------------
   const chatIn = (e) => {
     chats = e
   }
 
-  const onEnter = (e) => {
+  const ChatSend = (e) => {
     if (chats === '')
       return
 
@@ -103,7 +114,7 @@ const MainPage = () => {
       let upchat = {}
       upchat.username = nick
       upchat.message = chats
-      upchat.msgnum = cnum + 1
+      upchat.msgnum = chatNum + 1
 
       let dbref = ref(realDB)
 
@@ -145,12 +156,12 @@ const MainPage = () => {
 
               let upList = slist.slice(listSize)
 
-              setClist(slist.slice(-listSize))
+              setChatList(slist.slice(-listSize))
 
               set(ref(realDB, 'fbch/chat/'), upList)
             }
             else {
-              setClist(slist.slice(-listSize))
+              setChatList(slist.slice(-listSize))
             }
           })
       })
@@ -159,7 +170,7 @@ const MainPage = () => {
 
   const listsort = (list) => {
     list.sort((a, b) => a.msgnum - b.msgnum)
-    setCnum(list[list.length - 1].msgnum)
+    setChatNum(list[list.length - 1].msgnum)
     return list
   }
 
@@ -167,13 +178,13 @@ const MainPage = () => {
     nicks = e
   }
 
-  const NickOk = (e) => {
+  const NickEnter = (e) => {
     if (e.key === 'Enter') {
       if (monomod) {
         console.log('mono id')
 
         setNick(nicks)
-        setMynick(true)
+        setHasNick(true)
       }
       else {
         if (nicks === '모노쿠마') {
@@ -183,7 +194,7 @@ const MainPage = () => {
         }
         else {
           setNick(nicks)
-          setMynick(true)
+          setHasNick(true)
           setMono(false)
 
           let dbref = ref(realDB)
@@ -214,9 +225,9 @@ const MainPage = () => {
   }
 
   const scrolldown = (t = 100) => {
-    setTimeout(() => scrollref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), t)
+    setTimeout(() => chatScrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), t)
   }
-  //------------------------------Chatting------------------------------
+  
 
 
 
@@ -253,7 +264,7 @@ const MainPage = () => {
 
 
 
-  const pageover = () => {
+  const pageOut = () => {
     let dbref = ref(realDB)
 
     router.components['/MainPage'].props.pageProps.ad?.load()
@@ -283,10 +294,10 @@ const MainPage = () => {
     scrolldown()
 
     window.addEventListener('beforeunload', (e) => {
-      pageover()
+      pageOut()
     })
 
-    return () => pageover()
+    return () => pageOut()
   }, [])
 
   useEffect(() => {
@@ -374,7 +385,7 @@ const MainPage = () => {
 
     ObjsAni()
 
-  }, [sobjs])
+  }, [canvObjs])
 
   const CanvasClear = () => {
     canvas.width = canvas.width
@@ -402,31 +413,31 @@ const MainPage = () => {
       objs.push(oneObj)
     }
 
-    setSobjs(objs)
+    setCanvObjs(objs)
   }
 
   const ObjsAni = () => {
-    if (sobjs === null)
+    if (canvObjs === null)
       return
 
-    if (sobjs.length > 0) {
+    if (canvObjs.length > 0) {
       CanvasClear()
 
-      for (let i = 0; i < sobjs.length; i++) {
+      for (let i = 0; i < canvObjs.length; i++) {
         ctx.beginPath()
-        if (sobjs[i].y > canvas.height + sobjs[i].size) {
-          sobjs[i].y = -sobjs[i].size
-          sobjs[i].cx = Math.random() * 180
-          sobjs[i].size = Math.random() * 40 + 5
+        if (canvObjs[i].y > canvas.height + canvObjs[i].size) {
+          canvObjs[i].y = -canvObjs[i].size
+          canvObjs[i].cx = Math.random() * 180
+          canvObjs[i].size = Math.random() * 40 + 5
           // sobjs[i].xw = Math.random() * 0.05 + 0.001
-          sobjs[i].sp = Math.random() * 1.5 + 0.5
+          canvObjs[i].sp = Math.random() * 1.5 + 0.5
           // continue
         }
 
-        sobjs[i].y += sobjs[i].sp
-        sobjs[i].x += Math.cos((sobjs[i].cx++) * sobjs[i].xw)
+        canvObjs[i].y += canvObjs[i].sp
+        canvObjs[i].x += Math.cos((canvObjs[i].cx++) * canvObjs[i].xw)
 
-        let radgrad = ctx.createRadialGradient(sobjs[i].x, sobjs[i].y, 0, sobjs[i].x, sobjs[i].y, sobjs[i].size)
+        let radgrad = ctx.createRadialGradient(canvObjs[i].x, canvObjs[i].y, 0, canvObjs[i].x, canvObjs[i].y, canvObjs[i].size)
         radgrad.addColorStop(0, '#fff')
         radgrad.addColorStop(0.2, '#aaa')
         radgrad.addColorStop(1, 'rgba(250, 250, 250, 0)')
@@ -460,13 +471,13 @@ const MainPage = () => {
       <MpthreeStop onClick={() => audioStop()}>■</MpthreeStop>
 
       <NickWrap><span>닉네임 :</span>
-        {mynick ? <ShowNick>{nick}</ShowNick>
+        {hasNick ? <ShowNick>{nick}</ShowNick>
           : <Nickinput
             style={{ position: 'sticky', opacity: '0.6' }}
             placeholder='nickname'
             maxLength={10}
             onChange={(e) => NickIn(e.target.value)}
-            onKeyDown={(e) => NickOk(e)} />}
+            onKeyDown={(e) => NickEnter(e)} />}
       </NickWrap>
 
       {mono ? <CantMono>사용할 수 없는 닉네임입니다</CantMono> : <div style={{ lineHeight: '20px' }}></div>}
@@ -502,17 +513,17 @@ const MainPage = () => {
         <PeopleCount chat={chatOn}>{`접속자 수 : ` + people}</PeopleCount>
 
         <ChatDiv chat={chatOn}>
-          {clist.length === 0 ? console.log('loading') : clist.map((v, i) => {
-            return <Chats key={i} ref={scrollref}>
+          {chatList.length === 0 ? console.log('loading') : chatList.map((v, i) => {
+            return <Chats key={i} ref={chatScrollRef}>
               <div style={{ wordBreak: 'break-all' }}>{v.msgnum} - {v.username} : {v.message}</div>
             </Chats>
           })}
         </ChatDiv>
 
-        {mynick ?
+        {hasNick ?
           <ChatStart
             ref={chatref}
-            onKeyDown={(e) => onEnter(e)}
+            onKeyDown={(e) => ChatSend(e)}
             onChange={e => chatIn(e.target.value)}
             placeholder='bla~ bla~'
             chat={chatOn}

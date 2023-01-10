@@ -2,26 +2,26 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import MainPage from './MainPage';
+// import MainPage from './MainPage';
 
 export default function Home() {
 
   const router = useRouter()
 
-  const [btn1, setBtn1] = useState(false)
-  const [btn2, setBtn2] = useState(false)
+  const [myInfo, setMyInfo] = useState(false)
+  const [linkInfo, setLinkInfo] = useState(false)
   const [btn3, setBtn3] = useState(false)
 
-  const Dmode = { bgc: '#282c34', c1: '#888', c2: 'rgba(20, 20, 20, 0.8)', fc: '#eee' }
-  const Nmode = { bgc: '#eee', c1: '#444', c2: 'rgba(220, 220, 220, 0.8)', fc: '#282c34' }
+  const Darkmode = { bgc: '#282c34', c1: '#888', c2: 'rgba(20, 20, 20, 0.8)', fc: '#eee' }
+  const Normode = { bgc: '#eee', c1: '#444', c2: 'rgba(220, 220, 220, 0.8)', fc: '#282c34' }
 
-  const [modedat, setModedat] = useState(Dmode)
+  const [currMode, setCurrMode] = useState(Darkmode)
 
   const ver = '- v0.5 -'
 
-  const Btn1Click = () => {
+  const myInfoClick = () => {
     return <div>
-      <Xbtn onClick={() => setBtn1(false)}>❌</Xbtn>
+      <Xbtn onClick={() => setMyInfo(false)}>❌</Xbtn>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '60px' }}>
         <div>안녕하세요 !</div>
         <div>신입 프론트엔드 개발자 지망생입니다</div>
@@ -32,9 +32,9 @@ export default function Home() {
     </div>
   }
 
-  const Btn2Click = () => {
+  const linkInfoClick = () => {
     return <div>
-      <Xbtn onClick={() => setBtn2(false)}>❌</Xbtn>
+      <Xbtn onClick={() => setLinkInfo(false)}>❌</Xbtn>
       <div>💮마지막 프로젝트 깃허브💮</div>
       <a href='https://github.com/Final-A68-Seesaw/FE_SEESO'>
         https://github.com/Final-A68-Seesaw/FE_SEESO
@@ -52,11 +52,11 @@ export default function Home() {
 
   const ChangeMode = () => {
     if (localStorage.getItem('Theme') === 'Dark') {
-      setModedat(Nmode)
+      setCurrMode(Normode)
       localStorage.setItem('Theme', 'Normal')
     }
     else {
-      setModedat(Dmode)
+      setCurrMode(Darkmode)
       localStorage.setItem('Theme', 'Dark')
     }
   }
@@ -72,8 +72,8 @@ export default function Home() {
 
     onkeydown = (e) => {
       if (e.key === 'Escape') {
-        setBtn1(false)
-        setBtn2(false)
+        setMyInfo(false)
+        setLinkInfo(false)
       }
     }
   }, [])
@@ -87,32 +87,32 @@ export default function Home() {
   }, [btn3])
 
   return (
-    <MainWrap mode={modedat}>
+    <MainWrap mode={currMode}>
       {/* <MainPage /> */}
       <ModeBtn onClick={() => ChangeMode()}>✴</ModeBtn>
       <Center>
         {/* <button onClick={() => router.push('/MainPage')}>H</button> */}
         <CircleDiv>
-          <CenterCircle1 mode={modedat} onClick={() => setBtn1(!btn1)} btnstate={btn1}>🙋‍♂️</CenterCircle1>
-          <CenterCircle2 mode={modedat} onClick={() => setBtn2(!btn2)} btnstate={btn2}>💬</CenterCircle2>
-          <CenterCircle3 mode={modedat} onClick={() => setBtn3(!btn3)}>🚫</CenterCircle3>
-          <CenterCircle4 mode={modedat} onClick={() => router.push('/MainPage')}>🆓</CenterCircle4>
+          <InfoCircle mode={currMode} onClick={() => setMyInfo(!myInfo)} btnstate={myInfo}>🙋‍♂️</InfoCircle>
+          <LinkCircle mode={currMode} onClick={() => setLinkInfo(!linkInfo)} btnstate={linkInfo}>💬</LinkCircle>
+          <Circle3 mode={currMode} onClick={() => setBtn3(!btn3)}>🚫</Circle3>
+          <MainLink mode={currMode} onClick={() => router.push('/MainPage')}>🆓</MainLink>
         </CircleDiv>
 
-        {btn1 ?
+        {myInfo ?
           <ModalWrap>
-            <div onClick={() => setBtn1(!btn1)} style={{ width: '100%', height: '100%' }}></div>
-            <DescModal mode={modedat}>
-              {(Btn1Click())}
+            <div onClick={() => setMyInfo(!myInfo)} style={{ width: '100%', height: '100%' }}></div>
+            <DescModal mode={currMode}>
+              {(myInfoClick())}
             </DescModal>
           </ModalWrap>
           : ''}
 
-        {btn2 ?
+        {linkInfo ?
           <ModalWrap>
-            <div onClick={() => setBtn2(!btn2)} style={{ width: '100%', height: '100%' }}></div>
-            <DescModal mode={modedat}>
-              {(Btn2Click())}
+            <div onClick={() => setLinkInfo(!linkInfo)} style={{ width: '100%', height: '100%' }}></div>
+            <DescModal mode={currMode}>
+              {(linkInfoClick())}
             </DescModal>
           </ModalWrap>
           : ''}
@@ -175,7 +175,7 @@ const CircleDiv = styled.div`
   @keyframes shadow-drop_4{0%{box-shadow:0 0 0 transparent}100%{box-shadow:-8px -8px 16px rgba(200,200,200,0.8)}}
 `
 
-const CenterCircle1 = styled.div`
+const InfoCircle = styled.div`
   /* position: absolute; */
   width: 100px;
   height: 100px;
@@ -210,7 +210,7 @@ const CenterCircle1 = styled.div`
   }
 `
 
-const CenterCircle2 = styled.div`
+const LinkCircle = styled.div`
   /* position: absolute; */
   width: 100px;
   height: 100px;
@@ -245,7 +245,7 @@ const CenterCircle2 = styled.div`
   }
 `
 
-const CenterCircle3 = styled.div`
+const Circle3 = styled.div`
   /* position: absolute; */
   width: 100px;
   height: 100px;
@@ -270,7 +270,7 @@ const CenterCircle3 = styled.div`
   }
 `
 
-const CenterCircle4 = styled.div`
+const MainLink = styled.div`
   /* position: absolute; */
   width: 100px;
   height: 100px;
